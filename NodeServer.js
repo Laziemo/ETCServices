@@ -53,7 +53,7 @@ app.post('/tx_detail',async (req,res)=>{
    }
   }
   catch(e){
-    console.log(e)
+   console.log(e)
     res.send(e)
   }
 })
