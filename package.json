@@ -1,0 +1,32 @@
+{
+  "name": "etcservices",
+  "version": "1.0.1",
+  "description": "Ethereum classic node interface",
+  "main": "interface.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Laziemo/ETCServices.git"
+  },
+  "keywords": [
+    "etc",
+    "node",
+    "interface"
+  ],
+  "author": "Lmo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Laziemo/ETCServices/issues"
+  },
+  "homepage": "https://github.com/Laziemo/ETCServices#readme",
+  "dependencies": {
+    "base-64": "^0.1.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "helmet": "^3.14.0",
+    "request": "^2.88.0",
+    "web3": "^1.0.0-beta.36"
+  }
+}
