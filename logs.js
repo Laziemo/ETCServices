@@ -4,7 +4,7 @@
 var fs = require('fs');
 //-o_O===init======================================================~|
 //-o_O===sign_tx()=================================================~|
-function write_rec_log(status,data){
+let write_rec_log = (status,data)=>{
  const F_PATH = process.env.REC_LOG;
 //status is a bool
 //data is an object or a single txid for fail cases

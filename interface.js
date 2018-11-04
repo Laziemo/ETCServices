@@ -9,87 +9,101 @@ HYFERx Project
 const express = require('express');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-//var rp = require ('request-promise-native');
-const Web3 = require ('web3');
-const Web3ETH =  require('web3-eth');
-const Accounts = require('web3-eth-accounts');
+const fs = require('fs');
 const base64 = require ('base-64');
 const http = require ('http');
+//var rp = require ('request-promise-native');
 
-const logs = require('./logs.js');
+const logs = require('./logs');
+const w3fx = require('./web3_fx');
 //-o_o===init======================================================|
 const NODE_PORT = process.env.N_PORT;
 const S_PORT = process.env.S_PORT;
 const node_addr = `http://localhost:${NODE_PORT}`;
-const app = express();
-var web3 = new Web3.providers.HttpProvider(node_addr);
-var accounts = new Accounts(node_addr);
-var web3eth = new Web3ETH(node_addr);
+
+let app = express();
 app.use(helmet());
 app.use(helmet.noCache());
-//===AccountGen-====================================================|
-app.post('/new_account',async (req,res)=>{
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
+
+//===create-wallet-====================================================|
+app.post('/create_wallet',(req,res)=>{
   try{
-    console.log("got request at /new_account");
-  	let account = accounts.create();
-    //web3.eth.wallet.add(account);
-    res.send(account);
+    let privateKey = req.body.priv;
+    w3fx.account_from_key(privateKey)
+    .then((account)=>{
+      console.log(account);
+      res.send(account);
+    })
+    .catch((e)=>{
+      console.log(e);
+      res.send(e);
+    })
+  }
+  catch(e){
+    console.log(e);
+    res.send(e);
+  }
+
+})
+//===load-wallet-====================================================|
+//===AccountGen-====================================================|
+app.post('/new_account',(req,res)=>{
+  try{
+    w3fx.new_account()
+    .then((account)=>{
+      console.log('Created new account: ',account);
+      res.send(account);
+    })
+    .catch((e)=>{
+      console.log("Error creating new account", e);
+      res.send(e);
+    });
   }
   catch(e){
   	res.send(e);
   }
 })
 //===TxDetail-=====================================================|
-app.post('/tx_detail',async (req,res)=>{
-  try
-  {
-    var txhash = req.body.txid;
-    var re = new RegExp('^0x([A-Fa-f0-9]{64})$');
-    if((txid.length==64)&&(re.test(txid))){
-
-      web3.eth.getTransaction(txhash).then((result)=>{
-        return {"txid":result.hash,
-                "confirmations":web3.eth.blockNumber - result.blockNumber,
-                "from":result.from,
-                "to":result.to,
-                "value": result.value,
-                "gas":result.gas,
-                "gasPrice":result.gasPrice,
-        }
-      })
-      .then((json)=>{
-       res.send(json);
-      })
-      .catch((error)=>{
-       res.send(error);
-      })
-   }
+app.post('/tx_detail',(req,res)=>{
+  try{
+   let txid = req.body.txid;
+   w3fx.tx_detail(txid)
+   .then((details)=>{
+    console.log('Tx_Detail: ',details);
+    res.send(details);
+  })
+  .catch((e)=>{
+    console.log("Error creating new account", e);
+    res.send(e);
+  });
+}
+catch(e){
+  res.send(e);
+}
+  
+});
+//===get_block=====-==================================================|
+app.post('/height',(req,res)=>{
+  try{
+    w3fx.block_height()
+    .then((height)=>{
+      console.log('Current block height: ',height);
+      res.send(height);
+    })
+    .catch((e)=>{
+      console.log("Error creating new account", e);
+      res.send(e);
+    });
   }
   catch(e){
-   console.log(e);
-   res.send(e);
+  	res.send(e);
   }
-})
-//===ReceiveNotify-=================================================|
-var receive_notify = web3eth.subscribe('logs', {
-    address: '0x4d3aF118AC3F4B9EDd3c1b3ddc936AA71C7866E6'
-  }, function (error,result){
-    if(!error){
-     console.log(result);
-     logs.write_rec_log(true,result);
-    }
 });
-
-receive_notify.on("data", function(log){
-  console.log("on DATA",log);
-  logs.write_rec_log(true,log);
-})
-.on("changed",function(log){
-  console.log("on CHANGED: ", log);
-  logs.write_rec_log(true,log);
-})
-
+//===account_from_privateey-========================================|
 //===CONNECT=====-==================================================|
+
 app.listen(S_PORT,()=>{
  console.log(`Listening on port ${S_PORT}`);
 })
