@@ -7,9 +7,12 @@ HYFERx Project
 'use strict';
 //-o_o===modules===================================================|
 const bodyParser = require('body-parser');
-const Web3ETH =  require('web3-eth');
-const logs = require('./logs.js');
+const Web3E =  require('web3-eth');
+const logs = require('./lib/logs.js');
 //-o_o===init======================================================|
+const node_addr = `http://localhost:${process.env.N_PORT}`;
+let web3eth = new Web3E(node_addr);
+
 let receive_notify = web3eth.subscribe('logs', {
     address: '0x4d3aF118AC3F4B9EDd3c1b3ddc936AA71C7866E6'
   }, function (error,result){

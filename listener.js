@@ -13,13 +13,11 @@ const fs = require('fs');
 const base64 = require ('base-64');
 const http = require ('http');
 //var rp = require ('request-promise-native');
-const tx_object = require('./transaction_object');
-const w3fx = require('./web3_fx');
-const logs = require('./logs');
+const tx_object = require('./lib/transaction_object');
+const w3fx = require('./lib/web3_fx');
+const logs = require('.//lib/logs');
 //-o_o===init======================================================|
-const NODE_PORT = process.env.N_PORT;
 const SEND_PORT = process.env.SEND_PORT;
-const node_addr = `http://localhost:${NODE_PORT}`;
 
 let app = express();
 app.use(helmet());
@@ -30,7 +28,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 //===test-send-====================================================|
 app.post('/test_send',(req,res)=>{
   try{
-    let imported = "0x29717c1200f4fec65835f436c75932c0c950ca279712f4a91f696eb52f1d5d3b";
+    let imported = process.env.PK;
     let outputs={
     to:"0xC5Bc04cBaDAdc4496b10D6bAC877fb28c19a0c95",
     amount:10000000000000,
@@ -61,6 +59,6 @@ app.post('/test_send',(req,res)=>{
 });
 //--connect--------------------------------------------------------|
 app.listen(SEND_PORT,()=>{
-  console.log(`Listening on port ${SEND_PORT}`);
+  console.log(`Test Send: Listening on port ${SEND_PORT}`);
  });
 //--fin------------------------------------------------------------|

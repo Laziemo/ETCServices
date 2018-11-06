@@ -1,5 +1,5 @@
 /*
-ETC Node Server
+ETC Node Server: Interface
 Developed at ThroughBit Technologies Pvt. Ltd.
 HYFERx Project
 */
@@ -14,8 +14,8 @@ const base64 = require ('base-64');
 const http = require ('http');
 //var rp = require ('request-promise-native');
 
-const logs = require('./logs');
-const w3fx = require('./web3_fx');
+const logs = require('./lib/logs');
+const w3fx = require('./lib/web3_fx');
 //-o_o===init======================================================|
 const NODE_PORT = process.env.N_PORT;
 const S_PORT = process.env.S_PORT;
@@ -27,28 +27,7 @@ app.use(helmet.noCache());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
-//===create-wallet-====================================================|
-app.post('/create_wallet',(req,res)=>{
-  try{
-    let privateKey = req.body.priv;
-    w3fx.account_from_key(privateKey)
-    .then((account)=>{
-      console.log(account);
-      res.send(account);
-    })
-    .catch((e)=>{
-      console.log(e);
-      res.send(e);
-    })
-  }
-  catch(e){
-    console.log(e);
-    res.send(e);
-  }
-
-})
-//===load-wallet-====================================================|
-//===AccountGen-====================================================|
+//===new_account-====================================================|
 app.post('/new_account',(req,res)=>{
   try{
     w3fx.new_account()
@@ -101,7 +80,6 @@ app.post('/height',(req,res)=>{
   	res.send(e);
   }
 });
-//===account_from_privateey-========================================|
 //===CONNECT=====-==================================================|
 
 app.listen(S_PORT,()=>{
