@@ -49,25 +49,26 @@ program
       console.log(`\nError in retrieving balance for ${address}.\n${e}\nIs this a morden address?\n`);
     });
   });
-//-o_o===sign====================================================|
+//-o_o===send-0====================================================|
 program
-  .command('send <to> <amount> <private_key>')
+  .command('sendx <to> <amount> <private_key>')
   .alias('x')
   .description('creates transaction object of <amount> ether, from account <private_key>, <to> address; and broadcasts to morden.')
   .action((to,amount,private_key)=>{
-    const amEth=web3.utils.toWei(amount,'ether');
-    tx_obj.create(to,amEth,private_key)
+    const amWei=web3.utils.toWei(amount,'ether');//to entered by cclient in ETC
+    tx_obj.create(to,amWei,private_key)
     .then((result)=>{
       let tx_o = result;
       console.log(tx_o);
-      w3fx.sign(result,private_key)
-      .then((signed_tx)=>{
-        console.log(`\n\nTransaction Signed.\nFrom:${tx_o.from}\nTo:${to}\nAmount:${amount} ETC\n`);
-        console.log(`Raw signed transaction:\n${signed_tx}`);
+      w3fx.sign(tx_o,private_key)
+      .then((tx_hex)=>{
+        const amEth=web3.utils.fromWei(tx_o.gasPrice,'ether');
+        const totalGas = amEth*tx_o.gas;
+        console.log(`\n\nTransaction Signed.\nFrom:${tx_o.from}\nTo:${to}\nAmount:${amount} ETC\nTotal Gas: ${totalGas} ETC\n`);
         console.log(`Attempting broadcast...`);
-        w3fx.broadcast(signed_tx.rawTransaction)
-        .then((result)=>{
-          console.log(`${receipt}`);
+        w3fx.broadcast(tx_hex)
+        .then((tx_hash)=>{
+          console.log(tx_hash);
         })
       })
       .catch((e)=>{
@@ -75,6 +76,29 @@ program
       });
     }) 
   });
+  //-o_o===send-1====================================================|
+program
+.command('send <to> <amount> <private_key>')
+.alias('s')
+.description('sends <amount> ether, from account <private_key>, <to> address; on morden chain.')
+.action((to,amount,private_key)=>{
+  const amWei=web3.utils.toWei(amount,'ether');//to entered by cclient in ETC
+  tx_obj.create(to,amWei,private_key)
+  .then((result)=>{
+    let tx_o = result;
+    console.log(tx_o);
+    w3fx.send(tx_o)
+    .then((tx_hash)=>{
+      const amEth=web3.utils.fromWei(tx_o.gasPrice,'ether');
+      const totalGas = amEth*tx_o.gas;
+      console.log(`\n\nTransaction Signed.\nTxHash: ${tx_hash}\nFrom:${tx_o.from}\nTo:${to}\nAmount:${amount} ETC\nTotal Gas: ${totalGas} ETC\n`);
+      
+    })
+    .catch((e)=>{
+      console.log(`\nError in signing transaction from ${tx_o.from} to ${to} for ${amount} ETC.\n${e}\n`);
+    });
+  }) 
+});
 //-o_o===get_transaction====================================================|
 program
 .command('get_tx <tx_hash>')
@@ -92,7 +116,7 @@ program
 //-o_o===get_receipt====================================================|
 program
 .command('get_receipt <raw_tx>')
-.alias('g')
+.alias('r')
 .description('get transaction_object for the provided morden tx_hash.')
 .action((raw_tx)=>{
   w3fx.get_tx_receipt(raw_tx)

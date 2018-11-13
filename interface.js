@@ -80,6 +80,23 @@ app.post('/height',(req,res)=>{
   	res.send(e);
   }
 });
+//===get_work=====-==================================================|
+app.post('/get_work',(req,res)=>{
+  try{
+    w3fx.get_work()
+    .then((work)=>{
+      console.log('Work: ',work);
+      res.send(work);
+    })
+    .catch((e)=>{
+      console.log("Error getting work", e);
+      res.send(e);
+    });
+  }
+  catch(e){
+  	res.send(e);
+  }
+});
 //===CONNECT=====-==================================================|
 
 app.listen(S_PORT,()=>{
